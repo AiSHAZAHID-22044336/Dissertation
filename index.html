@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Page</title>
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Include Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        body {
+            background: linear-gradient(to right, #0052D4, #65C7F7, #9CECFB);
+            color: #fff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            position: relative;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            animation: fadeInDown 1s;
+        }
+
+        .card {
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            padding: 20px;
+            animation: zoomIn 1s;
+        }
+
+        .map-container {
+            height: 400px;
+            margin-top: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        #car-location {
+            color: #fff;
+            animation: fadeInUp 1s;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: transparent; /* Make the table transparent */
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            color: white; /* Set the text color to white */
+        }
+
+        th {
+            background-color: #0000;
+        }
+
+        /* Styling for the sign-out button */
+        .sign-out-button {
+            position: absolute;
+            top: 10px; /* Adjust as needed */
+            right: 20px; /* Adjust as needed */
+            background-color: transparent;
+            border: 1px solid white;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        /* Styling for the sign-out button on hover */
+        .sign-out-button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            color: #fff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="animate__animated animate__fadeInDown">Real-time Car Tracking</h1>
+        <div class="card animate__animated animate__zoomIn">
+            <table>
+                <tr>
+                    <th>Car Number:</th>
+                    <td>{{ car_no }}</td>
+                </tr>
+                <tr>
+                    <th>Warehouse Status:</th>
+                    <td><span class="{% if warehouse_status == 'Authorized Vehicle' %}authorized{% else %}unauthorized{% endif %}">{{ warehouse_status }}</span></td>
+                </tr>
+                <tr>
+                    <th>Company Name:</th>
+                    <td>{{ company_name }}</td>
+                </tr>
+                <tr>
+                    <th>Driver Name:</th>
+                    <td>{{ driver_name }}</td>
+                </tr>
+                <tr>
+                    <th>Driver Contact Number:</th>
+                    <td>{{ driver_contact_number }}</td>
+                </tr>
+                <tr>
+                    <th>Firm Contact Number:</th>
+                    <td>{{ firm_contact_number }}</td>
+                </tr>
+                <tr>
+                    <th>Day Of the Month:</th>
+                    <td>{{ day_of_month }}</td>
+                </tr>
+                <tr>
+                    <th>Day Of the Week:</th>
+                    <td>{{ day_of_week }}</td>
+                </tr>
+                <tr>
+                    <th>Time:</th>
+                    <td>{{ hours }}:{{ minutes }}:{{ seconds }}</td>
+                </tr>
+                <tr>
+                    <th>Date:</th>
+                    <td>{{ day_of_month }}, {{ month }}, {{ year }}</td>
+                </tr>
+            </table>
+            <p id="car-location" class="animate__animated animate__fadeInUp"></p>
+            <div class="map-container" id="map"></div>
+        </div>
+        <!-- Sign-out button -->
+        <form action="/logout" method="post">
+            <button class="sign-out-button" type="submit">Sign out</button>
+        </form>
+    </div>
+
+    <script>
+        // Initialize and display map using latitude and longitude
+        function initMap() {
+            var latitude = {{ latitude }};
+            var longitude = {{ longitude }};
+            var map = new google.maps.Map(document.getElementById('map'), {
+                center: {lat: latitude, lng: longitude},
+                zoom: 15
+            });
+            var marker = new google.maps.Marker({
+                position: {lat: latitude, lng: longitude},
+                map: map,
+                title: 'Car Location'
+            });
+
+            // Get car location using Geocoding API
+            var geocoder = new google.maps.Geocoder();
+            var latlng = {lat: latitude, lng: longitude};
+            geocoder.geocode({'location': latlng}, function(results, status) {
+                if (status === 'OK') {
+                    if (results[0]) {
+                        document.getElementById('car-location').innerText = 'Car Location: ' + results[0].formatted_address;
+                    } else {
+                        console.log('No results found');
+                    }
+                } else {
+                    console.log('Geocoder failed due to: ' + status);
+                }
+            });
+        }
+    </script>
+    <!-- Include Google Maps API with your API key -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA_6dX87j1dV-6HuosZbvrOBefwqqnvgMA&callback=initMap"></script>
+</body>
+</html>
